@@ -25,7 +25,6 @@ EOF;
         $message->setRecipient($recipient);
         $message->setSubject($subject);
         $message->setBody($body);
-        $message->marAsUnread();
 
         $this->assertSame($id, $message->getId());
         $this->assertSame($sender, $message->getSender());

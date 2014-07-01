@@ -35,6 +35,15 @@ class Message implements MessageInterface
     private $isRead;
 
     /**
+     * Message constructor.
+     * Set the default state of a message.
+     */
+    public function __construct()
+    {
+        $this->isRead = false;
+    }
+
+    /**
      * Set the message ID.
      * @param int $id
      * @return void
