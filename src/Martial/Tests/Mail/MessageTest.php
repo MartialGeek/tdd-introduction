@@ -35,5 +35,7 @@ EOF;
 
         $message->markAsRead();
         $this->assertSame(true, $message->isRead());
+        $message->marAsUnread();
+        $this->assertSame(false, $message->isRead());
     }
 }
