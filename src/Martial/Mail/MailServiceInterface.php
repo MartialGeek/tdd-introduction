@@ -12,8 +12,9 @@ interface MailServiceInterface
      * Service constructor.
      *
      * @param AccessControlInterface $accessControlManager
+     * @param MailerInterface $mailer
      */
-    public function __construct(AccessControlInterface $accessControlManager);
+    public function __construct(AccessControlInterface $accessControlManager, MailerInterface $mailer);
 
     /**
      * Send a message.
