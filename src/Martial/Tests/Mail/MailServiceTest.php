@@ -13,6 +13,11 @@ class MailServiceTest extends \PHPUnit_Framework_TestCase
     public $accessControlManagerMock;
 
     /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
+    public $mailerMock;
+
+    /**
      * @var MailServiceInterface
      */
     public $mailService;
@@ -20,12 +25,63 @@ class MailServiceTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->accessControlManagerMock = $this->getMock('\Martial\Mail\AccessControlInterface');
-        $this->mailService = new MailService($this->accessControlManagerMock);
+        $this->mailerMock = $this->getMock('\Martial\Mail\MailerInterface');
+        $this->mailService = new MailService($this->accessControlManagerMock, $this->mailerMock);
     }
 
     public function testSendMessage()
     {
+        $senderEmail = 'john@do.net';
+        $recipientEmail = 'foo@bar.org';
+        $subjectEmail = 'An amazing subject';
+        $bodyEmail = <<<EOF
+What an amazing email!
+
+I have never written such an incredible mail, it's just....
+Sorry!
+EOF;
+
+        $senderMock = $this->getUserMock();
+        $recipientMock = $this->getUserMock();
         $messageMock = $this->getMessageMock();
+
+        $senderMock
+            ->expects($this->once())
+            ->method('getEmail')
+            ->will($this->returnValue($senderEmail));
+
+        $recipientMock
+            ->expects($this->once())
+            ->method('getEmail')
+            ->will($this->returnValue($recipientEmail));
+
+        $messageMock
+            ->expects($this->once())
+            ->method('getSender')
+            ->will($this->returnValue($senderMock));
+
+        $messageMock
+            ->expects($this->once())
+            ->method('getRecipient')
+            ->will($this->returnValue($recipientMock));
+
+        $messageMock
+            ->expects($this->once())
+            ->method('getSubject')
+            ->will($this->returnValue($subjectEmail));
+
+        $messageMock
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($bodyEmail));
+
+        $this
+            ->mailerMock
+            ->expects($this->once())
+            ->method('send')
+            ->with($senderEmail, $recipientEmail, $subjectEmail, $bodyEmail)
+            ->will($this->returnValue(true));
+
         $status = $this->mailService->sendMessage($messageMock);
         $this->assertTrue($status);
     }
@@ -36,5 +92,13 @@ class MailServiceTest extends \PHPUnit_Framework_TestCase
     protected function getMessageMock()
     {
         return $this->getMock('\Martial\Mail\MessageInterface');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getUserMock()
+    {
+        return $this->getMock('\Martial\Mail\UserInterface');
     }
 }

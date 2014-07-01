@@ -4,14 +4,19 @@ namespace Martial\Mail;
 
 class MailService implements MailServiceInterface
 {
+    /**
+     * @var MailerInterface
+     */
+    private $mailer;
 
     /**
      * Service constructor.
      * @param AccessControlInterface $accessControlManager
+     * @param MailerInterface $mailer
      */
-    public function __construct(AccessControlInterface $accessControlManager)
+    public function __construct(AccessControlInterface $accessControlManager, MailerInterface $mailer)
     {
-        // TODO: Implement __construct() method.
+        $this->mailer = $mailer;
     }
 
     /**
@@ -21,6 +26,13 @@ class MailService implements MailServiceInterface
      */
     public function sendMessage(MessageInterface $message)
     {
+        $senderEmail = $message->getSender()->getEmail();
+        $recipientEmail = $message->getRecipient()->getEmail();
+        $subject = $message->getSubject();
+        $body = $message->getBody();
+
+        $this->mailer->send($senderEmail, $recipientEmail, $subject, $body);
+
         return true;
     }
 
