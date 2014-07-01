@@ -76,6 +76,13 @@ EOF;
             ->will($this->returnValue($bodyEmail));
 
         $this
+            ->accessControlManagerMock
+            ->expects($this->once())
+            ->method('isAllowedToSend')
+            ->with($senderMock, $recipientMock)
+            ->will($this->returnValue(true));
+
+        $this
             ->mailerMock
             ->expects($this->once())
             ->method('send')
