@@ -16,7 +16,7 @@ class AccessControlManager implements AccessControlInterface
      */
     public function isAllowedToSend(UserInterface $sender, UserInterface $recipient)
     {
-        return true;
+        return $sender !== $recipient;
     }
 
     /**
