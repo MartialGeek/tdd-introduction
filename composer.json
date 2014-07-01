@@ -1,0 +1,19 @@
+{
+    "name": "martial/tdd",
+    "description": "An introduction of the Test Driven Development method.",
+    "require-dev": {
+        "phpunit/phpunit": "~4.1"
+    },
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "Martial Saunois",
+            "email": "saunois.martial@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "psr-4": { "": "src/" }
+    }
+}
