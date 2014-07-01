@@ -31,6 +31,19 @@ class MailServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testSendMessage()
     {
+        $this->sendMessage();
+    }
+
+    /**
+     * @expectedException \Martial\Mail\MailServiceException
+     */
+    public function testSendMessageShouldThrowAnExceptionWhenTheSenderIsTheRecipient()
+    {
+        $this->sendMessage(true);
+    }
+
+    protected function sendMessage($senderIsRecipient = false)
+    {
         $senderEmail = 'john@do.net';
         $recipientEmail = 'foo@bar.org';
         $subjectEmail = 'An amazing subject';
@@ -42,18 +55,25 @@ Sorry!
 EOF;
 
         $senderMock = $this->getUserMock();
-        $recipientMock = $this->getUserMock();
+        $recipientMock = $senderIsRecipient ? $senderMock : $this->getUserMock();
         $messageMock = $this->getMessageMock();
 
-        $senderMock
-            ->expects($this->once())
+        if ($senderIsRecipient) {
+            $senderMatcher = $senderMock->expects($this->exactly(2));
+        } else {
+            $senderMatcher = $senderMock->expects($this->once());
+        }
+
+        $senderMatcher
             ->method('getEmail')
             ->will($this->returnValue($senderEmail));
 
-        $recipientMock
-            ->expects($this->once())
-            ->method('getEmail')
-            ->will($this->returnValue($recipientEmail));
+        if (!$senderIsRecipient) {
+            $recipientMock
+                ->expects($this->once())
+                ->method('getEmail')
+                ->will($this->returnValue($recipientEmail));
+        }
 
         $messageMock
             ->expects($this->once())
@@ -75,22 +95,29 @@ EOF;
             ->method('getBody')
             ->will($this->returnValue($bodyEmail));
 
+        $accessControlResult = $senderIsRecipient ? false : true;
+
         $this
             ->accessControlManagerMock
             ->expects($this->once())
             ->method('isAllowedToSend')
             ->with($senderMock, $recipientMock)
-            ->will($this->returnValue(true));
+            ->will($this->returnValue($accessControlResult));
 
-        $this
-            ->mailerMock
-            ->expects($this->once())
-            ->method('send')
-            ->with($senderEmail, $recipientEmail, $subjectEmail, $bodyEmail)
-            ->will($this->returnValue(true));
+        if (!$senderIsRecipient) {
+            $this
+                ->mailerMock
+                ->expects($this->once())
+                ->method('send')
+                ->with($senderEmail, $recipientEmail, $subjectEmail, $bodyEmail)
+                ->will($this->returnValue(true));
+        }
 
         $status = $this->mailService->sendMessage($messageMock);
-        $this->assertTrue($status);
+
+        if (!$senderIsRecipient) {
+            $this->assertTrue($status);
+        }
     }
 
     /**

@@ -32,6 +32,7 @@ class MailService implements MailServiceInterface
     /**
      * Send a message.
      * @param MessageInterface $message
+     * @throws MailServiceException
      * @return boolean
      */
     public function sendMessage(MessageInterface $message)
@@ -43,7 +44,10 @@ class MailService implements MailServiceInterface
         $subject = $message->getSubject();
         $body = $message->getBody();
 
-        $this->accessControlManager->isAllowedToSend($sender, $recipient);
+        if (!$this->accessControlManager->isAllowedToSend($sender, $recipient)) {
+            throw new MailServiceException();
+        }
+
         $this->mailer->send($senderEmail, $recipientEmail, $subject, $body);
 
         return true;
