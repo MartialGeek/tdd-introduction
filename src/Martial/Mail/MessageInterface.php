@@ -95,7 +95,7 @@ interface MessageInterface
      *
      * @return void
      */
-    public function marAsUnread();
+    public function markAsUnread();
 
     /**
      * Check if the message is read.
