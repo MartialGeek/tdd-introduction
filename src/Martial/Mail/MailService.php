@@ -39,18 +39,17 @@ class MailService implements MailServiceInterface
     {
         $sender = $message->getSender();
         $recipient = $message->getRecipient();
-        $senderEmail = $sender->getEmail();
-        $recipientEmail = $recipient->getEmail();
-        $subject = $message->getSubject();
-        $body = $message->getBody();
 
         if (!$this->accessControlManager->isAllowedToSend($sender, $recipient)) {
             throw new MailServiceException();
         }
 
-        $this->mailer->send($senderEmail, $recipientEmail, $subject, $body);
+        $senderEmail = $sender->getEmail();
+        $recipientEmail = $recipient->getEmail();
+        $subject = $message->getSubject();
+        $body = $message->getBody();
 
-        return true;
+        $this->mailer->send($senderEmail, $recipientEmail, $subject, $body);
     }
 
     /**
